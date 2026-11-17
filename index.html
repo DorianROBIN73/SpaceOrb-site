@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SpaceOrb – le macropad fait main</title>
+<meta name="description" content="SpaceOrb : macropad 15 touches, potentiomètre et écran OLED, construit à la main. Demande un exemplaire, propose des fonctionnalités, configure-le depuis ton navigateur.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#000;--panel:#111;--line:#2a2a2a;--txt:#e8e6e3;--mute:#9a9792;--or:#ff5a00;--alu:linear-gradient(135deg,#eef0f2 0%,#9aa0a6 45%,#d3d6d9 70%,#767c82 100%);
+--head:"Chakra Petch",system-ui,sans-serif;--body:"IBM Plex Sans",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--txt);font:400 1rem/1.6 var(--body)}
+a{color:var(--or)}
+:focus-visible{outline:2px solid var(--or);outline-offset:3px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+header{position:sticky;top:0;z-index:5;background:rgba(0,0,0,.88);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:60px;flex-wrap:wrap}
+.logo{font:700 1.25rem var(--head);letter-spacing:.04em;color:var(--txt);text-decoration:none}
+.logo i{color:var(--or);font-style:normal}
+nav{display:flex;gap:18px;flex-wrap:wrap}
+nav a{color:var(--mute);text-decoration:none;font-size:.95rem}
+nav a:hover{color:var(--txt)}
+h1,h2,h3{font-family:var(--head);line-height:1.1;margin:0}
+h2{font-size:clamp(1.6rem,4vw,2.2rem);margin-bottom:12px}
+section{padding:72px 0;border-top:1px solid var(--line)}
+.hero{border:0;padding:56px 0 72px;position:relative;overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;position:relative}
+.hero h1{font-size:clamp(3rem,10vw,6rem);font-weight:700;letter-spacing:.01em;background:var(--alu);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{max-width:46ch;color:var(--mute);font-size:1.1rem}
+.orbits{position:absolute;right:-180px;top:-120px;width:760px;height:760px;opacity:.55;pointer-events:none}
+.orbits g{transform-origin:center;animation:spin 90s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.orbits g{animation:none}}
+.btn{display:inline-block;font:700 1rem var(--head);letter-spacing:.03em;padding:12px 22px;border:0;border-radius:3px;background:var(--or);color:#000;text-decoration:none;cursor:pointer}
+.btn:hover{background:#ff7a2e}
+.btn.alt{background:transparent;color:var(--txt);border:1px solid #666}
+.btn.alt:hover{border-color:var(--or);color:var(--or)}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.gal{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:24px}
+.ph{aspect-ratio:4/3;background:var(--panel);border:1px solid var(--line);position:relative;overflow:hidden;display:grid;place-items:center;color:var(--mute);font-size:.9rem;text-align:center;padding:12px}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:28px;margin:28px 0 0}
+dt{font:700 1.1rem var(--head);color:var(--or);margin-bottom:4px}
+dd{margin:0;color:var(--mute)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+form{display:grid;gap:14px;margin-top:20px}
+label{display:grid;gap:6px;font-size:.92rem;color:var(--mute)}
+input,textarea,select{font:inherit;color:var(--txt);background:var(--panel);border:1px solid #3a3a3a;border-radius:3px;padding:11px 12px;width:100%}
+input:focus,textarea:focus{border-color:var(--or);outline:none}
+textarea{min-height:110px;resize:vertical}
+.msg{min-height:1.4em;font-size:.92rem}
+.ok{color:#7ddf8a}.ko{color:#ff7b6b}
+.road{list-style:none;padding:0;margin:20px 0 0;border-left:2px solid var(--line)}
+.road li{padding:6px 0 6px 18px;position:relative}
+.road li::before{content:"";position:absolute;left:-6px;top:15px;width:10px;height:10px;border-radius:50%;background:var(--bg);border:2px solid #666}
+.road li.fait::before{background:var(--or);border-color:var(--or)}
+.road li.cours::before{border-color:var(--or)}
+.road small{color:var(--mute)}
+.plate{background:var(--alu);color:#111;border-radius:6px;padding:26px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5),0 8px 30px rgba(255,90,0,.08)}
+.plate h2{color:#111}
+.plate label{color:#333}
+.plate input{background:#f4f5f6;color:#111;border-color:#7b8187}
+.plate .msg.ko{color:#b3261e}.plate .msg.ok{color:#1b6e2c}
+.plate .btn.alt{color:#111;border-color:#111}
+.plate p{color:#222}
+#app{display:none;margin-top:8px}
+.log{background:#000;color:#ffb27d;font:.85rem/1.5 ui-monospace,Consolas,monospace;border-radius:3px;padding:12px;height:130px;overflow:auto;white-space:pre-wrap;margin-top:14px}
+.status{display:flex;align-items:center;gap:8px;margin-top:14px;font-weight:500}
+.dot{width:10px;height:10px;border-radius:50%;background:#555}
+.dot.on{background:var(--or);box-shadow:0 0 10px var(--or)}
+.notice{background:#1a0f08;border:1px solid var(--or);color:#ffc9a3;padding:10px 12px;border-radius:3px;font-size:.9rem;margin-top:14px}
+footer{border-top:1px solid var(--line);padding:36px 0;color:var(--mute);font-size:.9rem}
+footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+.sig{font:700 .95rem var(--head);padding:8px 16px;background:var(--alu);color:#111;border-radius:3px;letter-spacing:.04em}
+@media(max-width:780px){.hero .wrap,.two{grid-template-columns:1fr}.orbits{right:-300px;top:-60px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<a class="logo" href="#top">Space<i>Orb</i></a>
+<nav aria-label="Navigation principale">
+<a href="#galerie">Galerie</a><a href="#fonctions">Fonctionnalités</a><a href="#idees">Idées</a><a href="#commande">Commander</a><a href="#espace">Mon SpaceOrb</a>
+</nav></div></header>
+
+<main id="top">
+<section class="hero">
+<svg class="orbits" viewBox="0 0 760 760" aria-hidden="true"><g fill="none" stroke="#ff5a00" stroke-width="1">
+<ellipse cx="380" cy="380" rx="360" ry="140" transform="rotate(-25 380 380)"/>
+<ellipse cx="380" cy="380" rx="300" ry="90" transform="rotate(35 380 380)"/>
+<ellipse cx="380" cy="380" rx="210" ry="210"/>
+<circle cx="146" cy="268" r="7" fill="#ff5a00"/><circle cx="640" cy="470" r="4" fill="#d3d6d9" stroke="none"/></g></svg>
+<div class="wrap">
+<div>
+<h1>SpaceOrb</h1>
+<p>Un macropad de 15 touches avec potentiomètre et écran OLED, assemblé à la main. Chaque touche se reprogramme depuis ton navigateur, sans installer quoi que ce soit.</p>
+<div class="row"><a class="btn" href="#commande">Demander un exemplaire</a><a class="btn alt" href="#espace">Connecter mon SpaceOrb</a></div>
+</div>
+<svg id="pad" viewBox="0 0 300 370" role="img" aria-label="Schéma du SpaceOrb : écran, potentiomètre et quinze touches"></svg>
+</div>
+</section>
+
+<section id="galerie"><div class="wrap">
+<h2>Galerie</h2>
+<p style="color:var(--mute);max-width:56ch">Noir, orange et aluminium véritable, dans l’esprit des montres Spacefox.</p>
+<div class="gal">
+<div class="ph"><img src="images/spaceorb-1.jpg" alt="SpaceOrb vu de face" onerror="this.remove()">Ajoute images/spaceorb-1.jpg</div>
+<div class="ph"><img src="images/spaceorb-2.jpg" alt="SpaceOrb vu de trois quarts" onerror="this.remove()">Ajoute images/spaceorb-2.jpg</div>
+<div class="ph"><img src="images/spaceorb-3.jpg" alt="Détail de la plaque en aluminium gravée" onerror="this.remove()">Ajoute images/spaceorb-3.jpg</div>
+</div></div></section>
+
+<section id="fonctions"><div class="wrap">
+<h2>Ce qu’il fait</h2>
+<dl>
+<div><dt>15 touches libres</dt><dd>Lettres, chiffres AZERTY, touches F13 à F20, modificateurs, texte entier en une pression.</dd></div>
+<div><dt>Potentiomètre à bouton</dt><dd>Volume, défilement, zoom : tu choisis l’action de la rotation et du clic.</dd></div>
+<div><dt>Écran intégré</dt><dd>Affiche le nom du mode actif. Les touches non programmées ne font rien.</dd></div>
+<div><dt>Réglages dans le navigateur</dt><dd>Branche-le, clique sur Connecter, et reprogramme-le. Les mises à jour du firmware passent aussi par là.</dd></div>
+</dl></div></section>
+
+<section id="idees"><div class="wrap two">
+<div>
+<h2>Propose une fonctionnalité</h2>
+<p style="color:var(--mute)">Une idée de mode, d’action ou d’affichage ? Dis-la ici. Je lis tout et j’ajoute ce qui a du sens dans la prochaine version.</p>
+<form id="f-idea" data-key="FORMSPREE_IDEA">
+<label>Ton nom<input name="nom" required autocomplete="name"></label>
+<label>Ton email (pour te prévenir quand c’est ajouté)<input name="email" type="email" required autocomplete="email"></label>
+<label>Ton idée<textarea name="idee" required></textarea></label>
+<button class="btn" type="submit">Envoyer mon idée</button><div class="msg" role="status"></div>
+</form></div>
+<div>
+<h2>Feuille de route</h2>
+<ul class="road">
+<li class="fait">Détection automatique du SpaceOrb <small>(fait)</small></li>
+<li class="fait">Colonne 4 réparée, firmware v7 <small>(fait)</small></li>
+<li class="cours">Maintien de touche réel <small>(en cours)</small></li>
+<li class="cours">Action « taper du texte » <small>(en cours)</small></li>
+<li>Profils par application <small>(prévu)</small></li>
+</ul></div>
+</div></section>
+
+<section id="commande"><div class="wrap" style="max-width:640px">
+<h2>Demander un exemplaire</h2>
+<p style="color:var(--mute)">Aucun paiement sur ce site. Tu envoies ta demande, je te réponds par email avec le prix et le délai.</p>
+<form id="f-order" data-key="FORMSPREE_ORDER">
+<label>Nom et prénom<input name="nom" required autocomplete="name"></label>
+<label>Email<input name="email" type="email" required autocomplete="email"></label>
+<label>Quantité<input name="quantite" type="number" min="1" max="5" value="1" required></label>
+<label>Pays ou ville de livraison<input name="pays" required autocomplete="country-name"></label>
+<label>Un mot pour moi (facultatif)<textarea name="message"></textarea></label>
+<button class="btn" type="submit">Envoyer ma demande</button><div class="msg" role="status"></div>
+</form></div></section>
+
+<section id="espace"><div class="wrap" style="max-width:720px">
+<div class="plate">
+<h2>Mon SpaceOrb</h2>
+<p>Réservé aux propriétaires. Connecte-toi pour reprogrammer ton macropad et le mettre à jour.</p>
+<div id="auth">
+<form id="f-auth">
+<label>Email<input id="a-mail" type="email" required autocomplete="email"></label>
+<label>Mot de passe<input id="a-pass" type="password" minlength="8" required autocomplete="current-password"></label>
+<div class="row" style="margin-top:0"><button class="btn" type="submit">Me connecter</button><button class="btn alt" type="button" id="signup">Créer mon compte</button></div>
+<div class="msg" id="a-msg" role="status"></div>
+</form></div>
+<div id="app">
+<div class="row" style="margin-top:0"><button class="btn" id="connect">Connecter mon SpaceOrb</button><button class="btn alt" id="update" disabled>Mettre à jour le firmware</button><button class="btn alt" id="logout">Me déconnecter</button></div>
+<div class="status"><span class="dot" id="dot"></span><span id="state">Aucun macropad connecté</span></div>
+<div class="log" id="log" aria-live="polite"></div>
+</div>
+<div class="notice" id="warn" hidden></div>
+</div></div></section>
+</main>
+
+<footer><div class="wrap">
+<span>SpaceOrb, conçu et assemblé à la main.</span>
+<span class="sig">By Dorian Robin</span>
+</div></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+/* ====== À REMPLIR ====== */
+const CONFIG = {
+  SUPABASE_URL: "",           // ex. https://xxxx.supabase.co
+  SUPABASE_KEY: "",           // clé « anon » publique
+  FORMSPREE_ORDER: "",        // ex. https://formspree.io/f/abcdwxyz
+  FORMSPREE_IDEA: "",         // un second formulaire Formspree
+  FIRMWARE_BUCKET: "firmware",        // bucket Supabase PRIVÉ
+  FIRMWARE_FILE: "spaceorb-latest.uf2",
+  USB_VENDOR_ID: 0x2E8A,      // Raspberry Pi (RP2040). Mets null pour tout lister
+  BAUD: 115200,
+  CMD_HELLO: "HELLO",         // commande série qui fait répondre le firmware
+  CMD_BOOTSEL: "BOOTSEL"      // commande série qui relance la carte en mode clé USB (à ajouter au firmware)
+};
+/* ======================= */
+
+// Schéma du macropad
+(function(){
+  const s=document.getElementById("pad");let h='<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef0f2"/><stop offset=".5" stop-color="#8d9399"/><stop offset="1" stop-color="#d3d6d9"/></linearGradient></defs>';
+  h+='<rect x="2" y="2" width="296" height="366" rx="18" fill="#0b0b0b" stroke="url(#g)" stroke-width="3"/>';
+  h+='<rect x="26" y="24" width="248" height="62" rx="4" fill="#000" stroke="#ff5a00" stroke-width="1.5"/>';
+  h+='<text x="150" y="63" text-anchor="middle" fill="#ff5a00" font-family="Chakra Petch,sans-serif" font-size="26" font-weight="700">SpaceOrb</text>';
+  for(let r=0;r<4;r++)for(let c=0;c<4;c++){
+    const x=26+c*66,y=110+r*62;
+    if(r===0&&c===3){h+='<circle cx="'+(x+25)+'" cy="'+(y+25)+'" r="25" fill="url(#g)"/><circle cx="'+(x+25)+'" cy="'+(y+25)+'" r="9" fill="#0b0b0b"/>';continue}
+    const hot=(r===3&&c===3)||(r===0&&c===0);
+    h+='<rect x="'+x+'" y="'+y+'" width="50" height="50" rx="6" fill="'+(hot?"#ff5a00":"#1b1b1b")+'" stroke="#444"/>';
+  }
+  s.innerHTML=h;
+})();
+
+// Formulaires (Formspree)
+document.querySelectorAll("form[data-key]").forEach(f=>{
+  f.addEventListener("submit",async e=>{
+    e.preventDefault();
+    const msg=f.querySelector(".msg"),url=CONFIG[f.dataset.key];
+    msg.className="msg";
+    if(!url){msg.textContent="Ce formulaire n’est pas encore configuré.";msg.classList.add("ko");return}
+    msg.textContent="Envoi en cours…";
+    try{
+      const r=await fetch(url,{method:"POST",body:new FormData(f),headers:{Accept:"application/json"}});
+      if(!r.ok)throw 0;
+      f.reset();msg.textContent="Message envoyé. Merci !";msg.classList.add("ok");
+    }catch(_){msg.textContent="L’envoi a échoué. Réessaie dans un instant.";msg.classList.add("ko")}
+  });
+});
+
+// Comptes (Supabase)
+const $=id=>document.getElementById(id);
+const sb=(CONFIG.SUPABASE_URL&&window.supabase)?window.supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_KEY):null;
+const amsg=(t,ok)=>{$("a-msg").textContent=t;$("a-msg").className="msg "+(ok?"ok":"ko")};
+function showApp(on){$("app").style.display=on?"block":"none";$("auth").style.display=on?"none":"block"}
+async function checkOwner(user){
+  const {data,error}=await sb.from("owners").select("email").eq("email",user.email).maybeSingle();
+  if(error||!data){showApp(false);amsg("Compte créé, mais pas encore validé comme propriétaire. Écris-moi avec ton email pour être activé.",false);return}
+  showApp(true);
+}
+if(!sb){
+  showApp(true);
+  $("warn").hidden=false;
+  $("warn").textContent="Mode test : Supabase n’est pas configuré, l’accès n’est donc pas protégé. Renseigne SUPABASE_URL et SUPABASE_KEY avant de publier.";
+}else{
+  sb.auth.getSession().then(({data})=>{if(data.session)checkOwner(data.session.user)});
+  $("f-auth").addEventListener("submit",async e=>{
+    e.preventDefault();amsg("Connexion…",true);
+    const {data,error}=await sb.auth.signInWithPassword({email:$("a-mail").value,password:$("a-pass").value});
+    if(error)return amsg("Email ou mot de passe incorrect.",false);
+    amsg("",true);checkOwner(data.user);
+  });
+  $("signup").addEventListener("click",async()=>{
+    if(!$("a-mail").value||$("a-pass").value.length<8)return amsg("Renseigne un email et un mot de passe de 8 caractères minimum.",false);
+    const {error}=await sb.auth.signUp({email:$("a-mail").value,password:$("a-pass").value});
+    amsg(error?"Création impossible : "+error.message:"Compte créé. Vérifie ta boîte mail, puis connecte-toi.",!error);
+  });
+  $("logout").addEventListener("click",async()=>{await sb.auth.signOut();showApp(false);amsg("Tu es déconnecté.",true)});
+}
+
+// Macropad (Web Serial)
+let port=null,writer=null;
+const log=t=>{const l=$("log");l.textContent+=t+"\n";l.scrollTop=l.scrollHeight};
+function setState(on,txt){$("dot").classList.toggle("on",on);$("state").textContent=txt;$("update").disabled=!on}
+if(!("serial" in navigator)){
+  $("connect").disabled=true;
+  $("warn").hidden=false;
+  $("warn").textContent="Ton navigateur ne gère pas la connexion USB. Utilise Chrome, Edge ou Opera sur ordinateur.";
+}
+async function readLoop(){
+  const dec=new TextDecoderStream();port.readable.pipeTo(dec.writable).catch(()=>{});
+  const rd=dec.readable.getReader();let buf="";
+  try{while(true){const {value,done}=await rd.read();if(done)break;buf+=value;let i;while((i=buf.indexOf("\n"))>=0){log("< "+buf.slice(0,i).trim());buf=buf.slice(i+1)}}}catch(_){}
+}
+async function send(cmd){if(!writer)return;await writer.write(new TextEncoder().encode(cmd+"\n"));log("> "+cmd)}
+$("connect").addEventListener("click",async()=>{
+  try{
+    const opts=CONFIG.USB_VENDOR_ID?{filters:[{usbVendorId:CONFIG.USB_VENDOR_ID}]}:{};
+    port=await navigator.serial.requestPort(opts);
+    await port.open({baudRate:CONFIG.BAUD});
+    writer=port.writable.getWriter();
+    setState(true,"SpaceOrb connecté");log("Connecté.");
+    readLoop();await send(CONFIG.CMD_HELLO);
+    port.addEventListener("disconnect",()=>{setState(false,"Macropad débranché");writer=null});
+  }catch(e){log("Connexion annulée ou impossible.");setState(false,"Aucun macropad connecté")}
+});
+
+// Mise à jour du firmware
+$("update").addEventListener("click",async()=>{
+  try{
+    let blob;
+    if(sb){
+      log("Téléchargement du firmware…");
+      const {data,error}=await sb.storage.from(CONFIG.FIRMWARE_BUCKET).download(CONFIG.FIRMWARE_FILE);
+      if(error)throw new Error("Firmware introuvable ou accès refusé.");
+      blob=data;
+    }else{log("Mode test : aucun firmware distant. Sélectionne un fichier .uf2 en local.");
+      const [fh]=await window.showOpenFilePicker({types:[{accept:{"application/octet-stream":[".uf2"]}}]});blob=await fh.getFile()}
+    await send(CONFIG.CMD_BOOTSEL);
+    await new Promise(r=>setTimeout(r,1500));
+    try{writer.releaseLock();await port.close()}catch(_){}
+    writer=null;setState(false,"Redémarrage en mode mise à jour");
+    log("Choisis maintenant le lecteur « RPI-RP2 » qui vient d’apparaître.");
+    const dir=await window.showDirectoryPicker({mode:"readwrite"});
+    const fh=await dir.getFileHandle("spaceorb.uf2",{create:true});
+    const w=await fh.createWritable();await w.write(blob);
+    try{await w.close()}catch(_){}
+    log("Firmware envoyé. Le SpaceOrb redémarre : reconnecte-le dans quelques secondes.");
+  }catch(e){log("Mise à jour interrompue : "+(e.message||"annulée")+".")}
+});
+</script>
+</body>
+</html>
