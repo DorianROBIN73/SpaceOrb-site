@@ -77,6 +77,15 @@ textarea{min-height:110px;resize:vertical}
 footer{border-top:1px solid var(--line);padding:36px 0;color:var(--mute);font-size:.9rem}
 footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
 .sig{font:700 .95rem var(--head);padding:8px 16px;background:var(--alu);color:#111;border-radius:3px;letter-spacing:.04em}
+.hp{position:absolute;left:-9999px;opacity:0}
+.rel{background:var(--panel);border:1px solid var(--line);padding:22px}
+.rel h3{font-size:1.2rem;margin-bottom:8px}
+.rel .v{color:var(--or);font-weight:500;margin:0 0 8px}
+.rel ul{margin:0;padding-left:18px;color:var(--mute)}
+.chk{display:flex;gap:10px;align-items:flex-start}
+.chk input{width:auto;margin-top:5px}
+.plate select{background:#f4f5f6;color:#111;border-color:#7b8187}
+.vinfo{margin-top:14px;font-weight:500}
 @media(max-width:780px){.hero .wrap,.two{grid-template-columns:1fr}.orbits{right:-300px;top:-60px}}
 </style>
 </head>
@@ -84,7 +93,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
 <header><div class="wrap">
 <a class="logo" href="#top">Space<i>Orb</i></a>
 <nav aria-label="Navigation principale">
-<a href="#galerie">Galerie</a><a href="#fonctions">Fonctionnalités</a><a href="#idees">Idées</a><a href="#commande">Commander</a><a href="#espace">Mon SpaceOrb</a>
+<a href="#galerie">Galerie</a><a href="#fonctions">Fonctionnalités</a><a href="#versions">Versions</a><a href="#idees">Idées</a><a href="#commande">Commander</a><a href="#espace">Mon SpaceOrb</a>
 </nav></div></header>
 
 <main id="top">
@@ -97,7 +106,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
 <div class="wrap">
 <div>
 <h1>SpaceOrb</h1>
-<p>Un macropad de 15 touches avec potentiomètre et écran OLED, assemblé à la main. Chaque touche se reprogramme depuis ton navigateur, sans installer quoi que ce soit.</p>
+<p>Un macropad de 15 touches avec potentiomètre et écran OLED, assemblé à la main. Un logiciel gratuit pour Windows, macOS et Linux te permet de programmer chaque touche et chacun des 4 modes.</p>
 <div class="row"><a class="btn" href="#commande">Demander un exemplaire</a><a class="btn alt" href="#espace">Connecter mon SpaceOrb</a></div>
 </div>
 <svg id="pad" viewBox="0 0 300 370" role="img" aria-label="Schéma du SpaceOrb : écran, potentiomètre et quinze touches"></svg>
@@ -106,7 +115,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
 
 <section id="galerie"><div class="wrap">
 <h2>Galerie</h2>
-<p style="color:var(--mute);max-width:56ch">Noir, orange et aluminium véritable, dans l’esprit des montres Spacefox.</p>
+<p style="color:var(--mute);max-width:56ch">Noir, orange et aluminium véritable.</p>
 <div class="gal">
 <div class="ph"><img src="spaceorb-1.jpg" alt="SpaceOrb vu de face" onerror="this.remove()">Ajoute spaceorb-1.jpg</div>
 <div class="ph"><img src="spaceorb-2.jpg" alt="SpaceOrb vu de trois quarts" onerror="this.remove()">Ajoute spaceorb-2.jpg</div>
@@ -116,37 +125,34 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
 <section id="fonctions"><div class="wrap">
 <h2>Ce qu’il fait</h2>
 <dl>
-<div><dt>15 touches libres</dt><dd>Lettres, chiffres AZERTY, touches F13 à F20, modificateurs, texte entier en une pression.</dd></div>
-<div><dt>Potentiomètre à bouton</dt><dd>Volume, défilement, zoom : tu choisis l’action de la rotation et du clic.</dd></div>
-<div><dt>Écran intégré</dt><dd>Affiche le nom du mode actif. Les touches non programmées ne font rien.</dd></div>
-<div><dt>Réglages dans le navigateur</dt><dd>Branche-le, clique sur Connecter, et reprogramme-le. Les mises à jour du firmware passent aussi par là.</dd></div>
+<div><dt>15 touches libres</dt><dd>Lettres, chiffres, touches F1 à F24 et modificateurs.</dd></div>
+<div><dt>4 modes programmables</dt><dd>Tourne le potentiomètre pour passer d’un mode à l’autre, chacun avec ses propres actions.</dd></div>
+<div><dt>Écran intégré</dt><dd>Affiche le mode actif. Après un moment d’inactivité, il passe en écran de veille : une représentation de l’espace.</dd></div>
+<div><dt>Logiciel de programmation</dt><dd>Un logiciel gratuit pour Windows, macOS et Linux, pour programmer les touches et les modes.</dd></div>
+<div><dt>Mises à jour sans ligne de commande</dt><dd>Une fois ton clavier connecté au navigateur, tu mets à jour son micrologiciel et le logiciel de ton ordinateur, sans ligne de commande et sans compétences en code.</dd></div>
 </dl></div></section>
 
-<section id="idees"><div class="wrap two">
-<div>
+<section id="versions"><div class="wrap">
+<h2>Dernières versions</h2>
+<div class="two" id="last"><p style="color:var(--mute)">Bientôt disponible.</p></div>
+</div></section>
+
+<section id="idees"><div class="wrap" style="max-width:640px">
 <h2>Propose une fonctionnalité</h2>
-<p style="color:var(--mute)">Une idée de mode, d’action ou d’affichage ? Dis-la ici. Je lis tout et j’ajoute ce qui a du sens dans la prochaine version.</p>
-<form id="f-idea" data-key="FORMSPREE_IDEA">
+<p style="color:var(--mute)">Une idée de mode, d’action ou d’affichage ? Dis-la ici. Tu reçois un email pour confirmer que je l’ai bien reçue, puis un second si je l’ajoute.</p>
+<form id="f-idea" data-type="idee">
+<input class="hp" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
 <label>Ton nom<input name="nom" required autocomplete="name"></label>
-<label>Ton email (pour te prévenir quand c’est ajouté)<input name="email" type="email" required autocomplete="email"></label>
+<label>Ton email<input name="email" type="email" required autocomplete="email"></label>
 <label>Ton idée<textarea name="idee" required></textarea></label>
 <button class="btn" type="submit">Envoyer mon idée</button><div class="msg" role="status"></div>
-</form></div>
-<div>
-<h2>Feuille de route</h2>
-<ul class="road">
-<li class="fait">Détection automatique du SpaceOrb <small>(fait)</small></li>
-<li class="fait">Colonne 4 réparée, firmware v7 <small>(fait)</small></li>
-<li class="cours">Maintien de touche réel <small>(en cours)</small></li>
-<li class="cours">Action « taper du texte » <small>(en cours)</small></li>
-<li>Profils par application <small>(prévu)</small></li>
-</ul></div>
-</div></section>
+</form></div></section>
 
 <section id="commande"><div class="wrap" style="max-width:640px">
 <h2>Demander un exemplaire</h2>
-<p style="color:var(--mute)">Aucun paiement sur ce site. Tu envoies ta demande, je te réponds par email avec le prix et le délai.</p>
-<form id="f-order" data-key="FORMSPREE_ORDER">
+<p style="color:var(--mute)">Aucun paiement sur ce site. Tu envoies ta demande, tu reçois un email de confirmation, puis je te réponds avec le prix et le délai.</p>
+<form id="f-order" data-type="commande">
+<input class="hp" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
 <label>Nom et prénom<input name="nom" required autocomplete="name"></label>
 <label>Email<input name="email" type="email" required autocomplete="email"></label>
 <label>Quantité<input name="quantite" type="number" min="1" max="5" value="1" required></label>
@@ -164,11 +170,16 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
 <label>Email<input id="a-mail" type="email" required autocomplete="email"></label>
 <label>Mot de passe<input id="a-pass" type="password" minlength="8" required autocomplete="current-password"></label>
 <div class="row" style="margin-top:0"><button class="btn" type="submit">Me connecter</button><button class="btn alt" type="button" id="signup">Créer mon compte</button></div>
+<label class="chk"><input type="checkbox" id="a-notif"><span>Je veux recevoir un email quand une nouvelle version sort (jamais de publicité).</span></label>
 <div class="msg" id="a-msg" role="status"></div>
 </form></div>
 <div id="app">
 <div class="row" style="margin-top:0"><button class="btn" id="connect">Connecter mon SpaceOrb</button><button class="btn alt" id="update" disabled>Mettre à jour le firmware</button><button class="btn alt" id="logout">Me déconnecter</button></div>
 <div class="status"><span class="dot" id="dot"></span><span id="state">Aucun macropad connecté</span></div>
+<div class="vinfo" id="vinfo"></div>
+<label style="margin-top:14px">Version du micrologiciel à installer<select id="fwsel"></select></label>
+<h3 style="margin:20px 0 4px;font-size:1.1rem">Logiciel pour ordinateur</h3>
+<div class="row" id="dl" style="margin-top:8px"></div>
 <div class="log" id="log" aria-live="polite"></div>
 </div>
 <div class="notice" id="warn" hidden></div>
@@ -200,18 +211,18 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
   s.innerHTML=h;
 })();
 
-// Formulaires (Formspree)
-document.querySelectorAll("form[data-key]").forEach(f=>{
+// Formulaires (Google Sheets via Apps Script)
+const post=obj=>fetch(CONFIG.APPS_SCRIPT_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(obj)});
+const OKTXT={idee:"Ton idée a bien été reçue. Je vais l’étudier, et un email te prévient si je l’ajoute.",commande:"Ta demande a bien été prise en compte. Je l’étudie et je reviens vers toi au plus vite. Un email de confirmation vient de t’être envoyé."};
+document.querySelectorAll("form[data-type]").forEach(f=>{
   f.addEventListener("submit",async e=>{
     e.preventDefault();
-    const msg=f.querySelector(".msg"),url=CONFIG[f.dataset.key];
-    msg.className="msg";
-    if(!url){msg.textContent="Ce formulaire n’est pas encore configuré.";msg.classList.add("ko");return}
+    const msg=f.querySelector(".msg");msg.className="msg";
+    if(!CONFIG.APPS_SCRIPT_URL){msg.textContent="Ce formulaire n’est pas encore configuré.";msg.classList.add("ko");return}
     msg.textContent="Envoi en cours…";
     try{
-      const r=await fetch(url,{method:"POST",body:new FormData(f),headers:{Accept:"application/json"}});
-      if(!r.ok)throw 0;
-      f.reset();msg.textContent="Message envoyé. Merci !";msg.classList.add("ok");
+      await post({type:f.dataset.type,...Object.fromEntries(new FormData(f))});
+      f.reset();msg.textContent=OKTXT[f.dataset.type];msg.classList.add("ok");
     }catch(_){msg.textContent="L’envoi a échoué. Réessaie dans un instant.";msg.classList.add("ko")}
   });
 });
@@ -224,7 +235,7 @@ function showApp(on){$("app").style.display=on?"block":"none";$("auth").style.di
 async function checkOwner(user){
   const {data,error}=await sb.from("owners").select("email").eq("email",user.email).maybeSingle();
   if(error||!data){showApp(false);amsg("Compte créé, mais pas encore validé comme propriétaire. Écris-moi avec ton email pour être activé.",false);return}
-  showApp(true);
+  showApp(true);initApp(user);
 }
 if(!sb){
   showApp(true);
@@ -240,10 +251,65 @@ if(!sb){
   });
   $("signup").addEventListener("click",async()=>{
     if(!$("a-mail").value||$("a-pass").value.length<8)return amsg("Renseigne un email et un mot de passe de 8 caractères minimum.",false);
-    const {error}=await sb.auth.signUp({email:$("a-mail").value,password:$("a-pass").value});
+    const {error}=await sb.auth.signUp({email:$("a-mail").value,password:$("a-pass").value,options:{data:{notifications:$("a-notif").checked}}});
     amsg(error?"Création impossible : "+error.message:"Compte créé. Vérifie ta boîte mail, puis connecte-toi.",!error);
   });
   $("logout").addEventListener("click",async()=>{await sb.auth.signOut();showApp(false);amsg("Tu es déconnecté.",true)});
+}
+
+// Versions
+let REL=[],installed=null,instSrc="",deviceVer=null;
+const fmt=d=>new Date(d).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"});
+const norm=v=>String(v||"").trim().replace(/^v/i,"");
+async function loadReleases(){
+  if(!sb)return;
+  const {data}=await sb.from("versions").select("*").order("date_sortie",{ascending:false}).order("id",{ascending:false});
+  REL=data||[];
+  const mk=(titre,r)=>{
+    const c=document.createElement("div");c.className="rel";
+    const h=document.createElement("h3");h.textContent=titre;c.append(h);
+    if(!r){const p=document.createElement("p");p.textContent="Bientôt disponible.";c.append(p);return c}
+    const v=document.createElement("p");v.className="v";v.textContent="Version "+norm(r.version)+" · "+fmt(r.date_sortie);c.append(v);
+    const ul=document.createElement("ul");
+    (r.nouveautes||"").split("\n").filter(x=>x.trim()).forEach(x=>{const li=document.createElement("li");li.textContent=x.trim();ul.append(li)});
+    c.append(ul);return c;
+  };
+  $("last").replaceChildren(mk("Micrologiciel du clavier",REL.find(r=>r.produit==="micrologiciel")),mk("Logiciel pour ordinateur",REL.find(r=>r.produit==="logiciel")));
+}
+loadReleases();
+function showVersion(){
+  const last=REL.find(r=>r.produit==="micrologiciel"&&r.fichier);
+  const cur=deviceVer||installed;
+  let t="Micrologiciel sur ton clavier : "+(cur?"v"+norm(cur)+" ("+(deviceVer?"lue sur le clavier":instSrc)+")":"version inconnue");
+  if(last&&cur)t+=norm(cur)===norm(last.version)?". Tu es à jour.":". Dernière version : v"+norm(last.version)+".";
+  $("vinfo").textContent=t;
+}
+async function initApp(user){
+  await loadReleases();
+  const sel=$("fwsel");sel.replaceChildren();
+  REL.filter(r=>r.produit==="micrologiciel"&&r.fichier).forEach((r,i)=>{
+    const o=document.createElement("option");o.value=r.id;
+    o.textContent="v"+norm(r.version)+" ("+fmt(r.date_sortie)+")"+(i===0?", dernière":"");sel.append(o);
+  });
+  const dl=$("dl");dl.replaceChildren();
+  const lg=REL.find(r=>r.produit==="logiciel");
+  [["windows","Windows"],["mac","macOS"],["linux","Linux"]].forEach(([k,n])=>{
+    if(!lg||!lg["fichier_"+k])return;
+    const b=document.createElement("button");b.className="btn alt";b.textContent=n+" · v"+norm(lg.version);
+    b.onclick=async()=>{
+      const {data,error}=await sb.storage.from("logiciel").createSignedUrl(lg["fichier_"+k],60,{download:true});
+      if(error)return log("Téléchargement refusé.");location.href=data.signedUrl;
+    };
+    dl.append(b);
+  });
+  if(!dl.children.length)dl.textContent="Aucun installateur publié pour l’instant.";
+  const {data}=await sb.from("installations").select("micrologiciel").eq("user_id",user.id).maybeSingle();
+  if(data){installed=data.micrologiciel;instSrc="enregistrée lors de ta dernière mise à jour"}
+  showVersion();
+  const m=user.user_metadata||{};
+  if(m.notifications&&!m.notif_sync&&CONFIG.APPS_SCRIPT_URL){
+    post({type:"abonnement",email:user.email});sb.auth.updateUser({data:{notif_sync:true}});
+  }
 }
 
 // Macropad (Web Serial)
@@ -260,7 +326,10 @@ async function readLoop(){
   const dec=new TextDecoderStream();
   readDone=port.readable.pipeTo(dec.writable).catch(()=>{});
   rd=dec.readable.getReader();let buf="";
-  try{while(true){const {value,done}=await rd.read();if(done)break;buf+=value;let i;while((i=buf.indexOf("\n"))>=0){log("< "+buf.slice(0,i).trim());buf=buf.slice(i+1)}}}catch(_){}
+  try{while(true){const {value,done}=await rd.read();if(done)break;buf+=value;let i;while((i=buf.indexOf("\n"))>=0){
+    const line=buf.slice(0,i).trim();buf=buf.slice(i+1);log("< "+line);
+    const m=/^VERSION\s+(\S+)/i.exec(line);if(m){deviceVer=m[1];showVersion()}
+  }}}catch(_){}
 }
 async function send(cmd){if(!writer)return;await writer.write(new TextEncoder().encode(cmd+"\n"));log("> "+cmd)}
 async function closePort(){
@@ -278,8 +347,8 @@ $("connect").addEventListener("click",async()=>{
     await port.open({baudRate:CONFIG.BAUD});
     writer=port.writable.getWriter();
     setState(true,"SpaceOrb connecté");log("Connecté.");
-    readLoop();await send(CONFIG.CMD_HELLO);
-    port.addEventListener("disconnect",()=>{setState(false,"Macropad débranché");writer=null});
+    readLoop();await send("VERSION");
+    port.addEventListener("disconnect",()=>{setState(false,"Macropad débranché");writer=null;deviceVer=null;showVersion()});
   }catch(e){log("Connexion annulée ou impossible.");setState(false,"Aucun macropad connecté")}
 });
 
@@ -298,11 +367,23 @@ async function writeDrive(blob){
 }
 $("update").addEventListener("click",async()=>{
   try{
-    if(pending){const b=pending;pending=null;$("update").textContent="Mettre à jour le firmware";await writeDrive(b);setState(false,"Mise à jour envoyée");return}
+    if(pending){
+      const p=pending;pending=null;$("update").textContent="Mettre à jour le firmware";
+      await writeDrive(p.blob);setState(false,"Mise à jour envoyée");
+      if(sb&&p.row){
+        installed=p.row.version;instSrc="enregistrée lors de ta dernière mise à jour";deviceVer=null;showVersion();
+        const {data:{user}}=await sb.auth.getUser();
+        await sb.from("installations").upsert({user_id:user.id,micrologiciel:p.row.version,updated_at:new Date().toISOString()});
+      }
+      return;
+    }
+    const row=REL.find(r=>String(r.id)===$("fwsel").value);
+    const cur=deviceVer||installed;
+    if(row&&cur&&norm(cur)===norm(row.version)&&!confirm("Ton clavier est déjà en version v"+norm(cur)+". La réinstaller quand même ?"))return;
     let blob;
     if(sb){
       log("Téléchargement du firmware…");
-      const {data,error}=await sb.storage.from(CONFIG.FIRMWARE_BUCKET).download(CONFIG.FIRMWARE_FILE);
+      const {data,error}=await sb.storage.from(CONFIG.FIRMWARE_BUCKET).download(row?row.fichier:CONFIG.FIRMWARE_FILE);
       if(error)throw new Error("Firmware introuvable ou accès refusé.");
       blob=data;
     }else{log("Mode test : aucun firmware distant. Sélectionne un fichier .uf2 en local.");
@@ -316,7 +397,7 @@ $("update").addEventListener("click",async()=>{
     }
     await wait(1500);
     setState(false,"Mode mise à jour");
-    pending=blob;
+    pending={blob,row};
     $("update").disabled=false;$("update").textContent="Choisir le lecteur RPI-RP2";
     log("Si le lecteur RPI-RP2 est apparu, clique sur « Choisir le lecteur RPI-RP2 ». Sinon, la carte n’a pas redémarré : maintiens son bouton BOOTSEL.");
   }catch(e){log("Mise à jour interrompue : "+(e.message||"annulée")+".")}
