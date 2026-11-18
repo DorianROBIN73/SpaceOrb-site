@@ -181,21 +181,9 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
 </div></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
 <script>
-/* ====== À REMPLIR ====== */
-const CONFIG = {
-  SUPABASE_URL: "https://ethjbizsqynlbfjgzgij.supabase.co",           // ex. https://xxxx.supabase.co
-  SUPABASE_KEY: "sb_publishable_9HXqQ3gE6X8A0eJ3C7_v7g_LKNH1BUO",           // clé « anon » publique
-  FORMSPREE_ORDER: "",        // ex. https://formspree.io/f/abcdwxyz
-  FORMSPREE_IDEA: "",         // un second formulaire Formspree
-  FIRMWARE_BUCKET: "firmware",        // bucket Supabase PRIVÉ
-  FIRMWARE_FILE: "spaceorb-latest.uf2",
-  USB_VENDOR_ID: null,      // Raspberry Pi (RP2040). Mets null pour tout lister
-  BAUD: 115200,
-  CMD_HELLO: "HELLO",         // commande série qui fait répondre le firmware
-  CMD_BOOTSEL: "BOOTSEL"      // commande série qui relance la carte en mode clé USB (à ajouter au firmware)
-};
-/* ======================= */
+
 
 // Schéma du macropad
 (function(){
@@ -259,20 +247,30 @@ if(!sb){
 }
 
 // Macropad (Web Serial)
-let port=null,writer=null;
+let port=null,writer=null,rd=null,readDone=null,pending=null;
 const log=t=>{const l=$("log");l.textContent+=t+"\n";l.scrollTop=l.scrollHeight};
 function setState(on,txt){$("dot").classList.toggle("on",on);$("state").textContent=txt;$("update").disabled=!on}
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
 if(!("serial" in navigator)){
   $("connect").disabled=true;
   $("warn").hidden=false;
   $("warn").textContent="Ton navigateur ne gère pas la connexion USB. Utilise Chrome, Edge ou Opera sur ordinateur.";
 }
 async function readLoop(){
-  const dec=new TextDecoderStream();port.readable.pipeTo(dec.writable).catch(()=>{});
-  const rd=dec.readable.getReader();let buf="";
+  const dec=new TextDecoderStream();
+  readDone=port.readable.pipeTo(dec.writable).catch(()=>{});
+  rd=dec.readable.getReader();let buf="";
   try{while(true){const {value,done}=await rd.read();if(done)break;buf+=value;let i;while((i=buf.indexOf("\n"))>=0){log("< "+buf.slice(0,i).trim());buf=buf.slice(i+1)}}}catch(_){}
 }
 async function send(cmd){if(!writer)return;await writer.write(new TextEncoder().encode(cmd+"\n"));log("> "+cmd)}
+async function closePort(){
+  try{if(rd)await rd.cancel()}catch(_){}
+  try{await readDone}catch(_){}
+  rd=null;
+  try{if(writer)writer.releaseLock()}catch(_){}
+  writer=null;
+  try{await port.close()}catch(_){}
+}
 $("connect").addEventListener("click",async()=>{
   try{
     const opts=CONFIG.USB_VENDOR_ID?{filters:[{usbVendorId:CONFIG.USB_VENDOR_ID}]}:{};
@@ -285,9 +283,22 @@ $("connect").addEventListener("click",async()=>{
   }catch(e){log("Connexion annulée ou impossible.");setState(false,"Aucun macropad connecté")}
 });
 
-// Mise à jour du firmware
+// Mise à jour du firmware, en deux clics : 1) redémarrage automatique, 2) choix du lecteur
+async function writeDrive(blob){
+  if(window.showDirectoryPicker){
+    const dir=await window.showDirectoryPicker({mode:"readwrite"});
+    const fh=await dir.getFileHandle("spaceorb.uf2",{create:true});
+    const w=await fh.createWritable();await w.write(blob);
+    try{await w.close()}catch(_){}
+    log("Firmware envoyé. Le SpaceOrb redémarre : reconnecte-le dans quelques secondes.");
+  }else{
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="spaceorb.uf2";a.click();
+    log("Ton navigateur ne peut pas écrire dans le lecteur. Le fichier spaceorb.uf2 est téléchargé : glisse-le dans le lecteur RPI-RP2.");
+  }
+}
 $("update").addEventListener("click",async()=>{
   try{
+    if(pending){const b=pending;pending=null;$("update").textContent="Mettre à jour le firmware";await writeDrive(b);setState(false,"Mise à jour envoyée");return}
     let blob;
     if(sb){
       log("Téléchargement du firmware…");
@@ -296,21 +307,18 @@ $("update").addEventListener("click",async()=>{
       blob=data;
     }else{log("Mode test : aucun firmware distant. Sélectionne un fichier .uf2 en local.");
       const [fh]=await window.showOpenFilePicker({types:[{accept:{"application/octet-stream":[".uf2"]}}]});blob=await fh.getFile()}
+    log("Redémarrage du SpaceOrb en mode mise à jour…");
     await send(CONFIG.CMD_BOOTSEL);
-    await new Promise(r=>setTimeout(r,1500));
-    try{writer.releaseLock();await port.close()}catch(_){}
-    writer=null;setState(false,"Redémarrage en mode mise à jour");
-    log("Choisis maintenant le lecteur « RPI-RP2 » qui vient d’apparaître.");
-    if(window.showDirectoryPicker){
-      const dir=await window.showDirectoryPicker({mode:"readwrite"});
-      const fh=await dir.getFileHandle("spaceorb.uf2",{create:true});
-      const w=await fh.createWritable();await w.write(blob);
-      try{await w.close()}catch(_){}
-      log("Firmware envoyé. Le SpaceOrb redémarre : reconnecte-le dans quelques secondes.");
-    }else{
-      const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="spaceorb.uf2";a.click();
-      log("Ton navigateur ne peut pas écrire dans le lecteur. Le fichier spaceorb.uf2 est téléchargé : glisse-le dans le lecteur RPI-RP2.");
+    await wait(500);
+    await closePort();
+    if(CONFIG.TOUCH_1200){
+      try{await port.open({baudRate:1200});await wait(200);await port.close()}catch(_){}
     }
+    await wait(1500);
+    setState(false,"Mode mise à jour");
+    pending=blob;
+    $("update").disabled=false;$("update").textContent="Choisir le lecteur RPI-RP2";
+    log("Si le lecteur RPI-RP2 est apparu, clique sur « Choisir le lecteur RPI-RP2 ». Sinon, la carte n’a pas redémarré : maintiens son bouton BOOTSEL.");
   }catch(e){log("Mise à jour interrompue : "+(e.message||"annulée")+".")}
 });
 </script>
