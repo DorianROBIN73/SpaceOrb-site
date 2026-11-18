@@ -184,13 +184,13 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
 <script>
 /* ====== À REMPLIR ====== */
 const CONFIG = {
-  SUPABASE_URL: "https://ethjbizsqynlbfjgzgij.supabase.co",           // ex. https://xxxx.supabase.co
-  SUPABASE_KEY: "sb_publishable_9HXqQ3gE6X8A0eJ3C7_v7g_LKNH1BUO",           // clé « anon » publique
+  SUPABASE_URL: "",           // ex. https://xxxx.supabase.co
+  SUPABASE_KEY: "",           // clé « anon » publique
   FORMSPREE_ORDER: "",        // ex. https://formspree.io/f/abcdwxyz
   FORMSPREE_IDEA: "",         // un second formulaire Formspree
   FIRMWARE_BUCKET: "firmware",        // bucket Supabase PRIVÉ
   FIRMWARE_FILE: "spaceorb-latest.uf2",
-  USB_VENDOR_ID: null,      // Raspberry Pi (RP2040). Mets null pour tout lister
+  USB_VENDOR_ID: 0x2E8A,      // Raspberry Pi (RP2040). Mets null pour tout lister
   BAUD: 115200,
   CMD_HELLO: "HELLO",         // commande série qui fait répondre le firmware
   CMD_BOOTSEL: "BOOTSEL"      // commande série qui relance la carte en mode clé USB (à ajouter au firmware)
@@ -301,11 +301,16 @@ $("update").addEventListener("click",async()=>{
     try{writer.releaseLock();await port.close()}catch(_){}
     writer=null;setState(false,"Redémarrage en mode mise à jour");
     log("Choisis maintenant le lecteur « RPI-RP2 » qui vient d’apparaître.");
-    const dir=await window.showDirectoryPicker({mode:"readwrite"});
-    const fh=await dir.getFileHandle("spaceorb.uf2",{create:true});
-    const w=await fh.createWritable();await w.write(blob);
-    try{await w.close()}catch(_){}
-    log("Firmware envoyé. Le SpaceOrb redémarre : reconnecte-le dans quelques secondes.");
+    if(window.showDirectoryPicker){
+      const dir=await window.showDirectoryPicker({mode:"readwrite"});
+      const fh=await dir.getFileHandle("spaceorb.uf2",{create:true});
+      const w=await fh.createWritable();await w.write(blob);
+      try{await w.close()}catch(_){}
+      log("Firmware envoyé. Le SpaceOrb redémarre : reconnecte-le dans quelques secondes.");
+    }else{
+      const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="spaceorb.uf2";a.click();
+      log("Ton navigateur ne peut pas écrire dans le lecteur. Le fichier spaceorb.uf2 est téléchargé : glisse-le dans le lecteur RPI-RP2.");
+    }
   }catch(e){log("Mise à jour interrompue : "+(e.message||"annulée")+".")}
 });
 </script>
