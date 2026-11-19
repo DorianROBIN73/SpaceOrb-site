@@ -195,11 +195,21 @@ details ul{color:var(--mute);margin:10px 0 0;padding-left:18px}
 <span class="sig">By Dorian Robin</span>
 </div></footer>
 
+<script>
+addEventListener("error",function(e){
+  var t=e.target,m;
+  if(t&&t.tagName==="SCRIPT"&&/config\.js/.test(t.src||""))m="le fichier config.js est introuvable : ajoute-le à la racine du dépôt GitHub, à côté de index.html.";
+  else if(t&&t.tagName)return;
+  else m=(e.message||"erreur inconnue")+(e.filename?" ("+e.filename.split("/").pop()+")":"");
+  var b=document.getElementById("errbar");
+  if(!b){b=document.createElement("div");b.id="errbar";b.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:99;background:#b3261e;color:#fff;padding:10px 16px;font:14px/1.4 sans-serif";document.body.appendChild(b)}
+  b.textContent="Problème sur la page : "+m;
+},true);
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
 <script>
-
-
+if(typeof CONFIG==="undefined")throw new Error("config.js est introuvable ou contient une erreur");
 // Schéma du macropad
 (function(){
   const s=document.getElementById("pad");let h='<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef0f2"/><stop offset=".5" stop-color="#8d9399"/><stop offset="1" stop-color="#d3d6d9"/></linearGradient></defs>';
