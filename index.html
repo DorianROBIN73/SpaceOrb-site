@@ -96,7 +96,7 @@ details ul{color:var(--mute);margin:10px 0 0;padding-left:18px}
 <header><div class="wrap">
 <a class="logo" href="#top">Space<i>Orb</i></a>
 <nav aria-label="Navigation principale">
-<a href="#galerie">Galerie</a><a href="#fonctions">Fonctionnalités</a><a href="#versions">Versions</a><a href="#idees">Idées</a><a href="#commande">Commander</a><a href="#espace">Mon SpaceOrb</a>
+<a href="#galerie">Galerie</a><a href="#fonctions">Fonctionnalités</a><a href="#idees">Idées</a><a href="#commande">Commander</a><a href="#versions">Versions</a><a href="#espace">Mon SpaceOrb</a>
 </nav></div></header>
 
 <main id="top">
@@ -135,14 +135,6 @@ details ul{color:var(--mute);margin:10px 0 0;padding-left:18px}
 <div><dt>Mises à jour sans ligne de commande</dt><dd>Une fois ton clavier connecté au navigateur, tu mets à jour son micrologiciel d’un clic, sans ligne de commande et sans compétences en code.</dd></div>
 </dl></div></section>
 
-<section id="versions"><div class="wrap">
-<h2>Dernières versions</h2>
-<div class="two" id="last"><p style="color:var(--mute)">Bientôt disponible.</p></div>
-<h3 style="margin:44px 0 6px;font-size:1.4rem">Historique du micrologiciel</h3>
-<p style="color:var(--mute);margin:0 0 14px">Ce que chaque version ajoute par rapport à la précédente.</p>
-<div id="hist"></div>
-</div></section>
-
 <section id="idees"><div class="wrap" style="max-width:640px">
 <h2>Propose une fonctionnalité</h2>
 <p style="color:var(--mute)">Une idée de mode, d’action ou d’affichage ? Dis-la ici. Tu reçois un email pour confirmer que je l’ai bien reçue, puis un second si je l’ajoute.</p>
@@ -166,6 +158,14 @@ details ul{color:var(--mute);margin:10px 0 0;padding-left:18px}
 <label>Un mot pour moi (facultatif)<textarea name="message"></textarea></label>
 <button class="btn" type="submit">Envoyer ma demande</button><div class="msg" role="status"></div>
 </form></div></section>
+
+<section id="versions"><div class="wrap">
+<h2>Dernières versions</h2>
+<div class="two" id="last"><p style="color:var(--mute)">Bientôt disponible.</p></div>
+<h3 style="margin:44px 0 6px;font-size:1.4rem">Historique du micrologiciel</h3>
+<p style="color:var(--mute);margin:0 0 14px">Ce que chaque version ajoute par rapport à la précédente.</p>
+<div id="hist"></div>
+</div></section>
 
 <section id="espace"><div class="wrap" style="max-width:720px">
 <div class="plate">
@@ -213,7 +213,7 @@ const DEFAULTS={
   SUPABASE_KEY:"sb_publishable_9HXqQ3gE6X8A0eJ3C7_v7g_LKNH1BUO",
   EMAILJS_SERVICE:"service_v4n7c7p",EMAILJS_KEY:"xEXpMRYXzBB83xIB0",
   EMAILJS_TEMPLATE_COMMANDE:"template_wr8v5rn",EMAILJS_TEMPLATE_IDEE:"template_pjldx6s",
-  SOFTWARE_REPO:"",FIRMWARE_BUCKET:"firmware",FIRMWARE_FILE:"spaceorb-latest.uf2",
+  SOFTWARE_REPO:"https://github.com/DorianROBIN73/SpaceOrb-App",FIRMWARE_BUCKET:"firmware",FIRMWARE_FILE:"spaceorb-latest.uf2",
   USB_VENDOR_ID:null,BAUD:115200,CMD_BOOTSEL:"BOOTSEL",TOUCH_1200:true
 };
 /* config.js (facultatif) peut modifier ces valeurs ; s'il est absent, celles-ci servent. */
