@@ -86,6 +86,9 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
 .chk input{width:auto;margin-top:5px}
 .plate select{background:#f4f5f6;color:#111;border-color:#7b8187}
 .vinfo{margin-top:14px;font-weight:500}
+details{border-top:1px solid var(--line);padding:12px 0}
+summary{cursor:pointer;font:700 1rem var(--head)}
+details ul{color:var(--mute);margin:10px 0 0;padding-left:18px}
 @media(max-width:780px){.hero .wrap,.two{grid-template-columns:1fr}.orbits{right:-300px;top:-60px}}
 </style>
 </head>
@@ -128,13 +131,16 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
 <div><dt>15 touches libres</dt><dd>Lettres, chiffres, touches F1 à F24 et modificateurs.</dd></div>
 <div><dt>4 modes programmables</dt><dd>Tourne le potentiomètre pour passer d’un mode à l’autre, chacun avec ses propres actions.</dd></div>
 <div><dt>Écran intégré</dt><dd>Affiche le mode actif. Après un moment d’inactivité, il passe en écran de veille : une représentation de l’espace.</dd></div>
-<div><dt>Logiciel de programmation</dt><dd>Un logiciel gratuit pour Windows, macOS et Linux, pour programmer les touches et les modes.</dd></div>
-<div><dt>Mises à jour sans ligne de commande</dt><dd>Une fois ton clavier connecté au navigateur, tu mets à jour son micrologiciel et le logiciel de ton ordinateur, sans ligne de commande et sans compétences en code.</dd></div>
+<div><dt>Logiciel de programmation</dt><dd>Un logiciel gratuit pour Windows, macOS et Linux, pour programmer les touches et les modes. Il se télécharge dans la section Dernières versions.</dd></div>
+<div><dt>Mises à jour sans ligne de commande</dt><dd>Une fois ton clavier connecté au navigateur, tu mets à jour son micrologiciel d’un clic, sans ligne de commande et sans compétences en code.</dd></div>
 </dl></div></section>
 
 <section id="versions"><div class="wrap">
 <h2>Dernières versions</h2>
 <div class="two" id="last"><p style="color:var(--mute)">Bientôt disponible.</p></div>
+<h3 style="margin:44px 0 6px;font-size:1.4rem">Historique du micrologiciel</h3>
+<p style="color:var(--mute);margin:0 0 14px">Ce que chaque version ajoute par rapport à la précédente.</p>
+<div id="hist"></div>
 </div></section>
 
 <section id="idees"><div class="wrap" style="max-width:640px">
@@ -164,7 +170,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
 <section id="espace"><div class="wrap" style="max-width:720px">
 <div class="plate">
 <h2>Mon SpaceOrb</h2>
-<p>Réservé aux propriétaires. Connecte-toi pour reprogrammer ton macropad et le mettre à jour.</p>
+<p>Réservé aux propriétaires. Connecte-toi pour mettre à jour le micrologiciel de ton macropad.</p>
 <div id="auth">
 <form id="f-auth">
 <label>Email<input id="a-mail" type="email" required autocomplete="email"></label>
@@ -178,8 +184,6 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
 <div class="status"><span class="dot" id="dot"></span><span id="state">Aucun macropad connecté</span></div>
 <div class="vinfo" id="vinfo"></div>
 <label style="margin-top:14px">Version du micrologiciel à installer<select id="fwsel"></select></label>
-<h3 style="margin:20px 0 4px;font-size:1.1rem">Logiciel pour ordinateur</h3>
-<div class="row" id="dl" style="margin-top:8px"></div>
 <div class="log" id="log" aria-live="polite"></div>
 </div>
 <div class="notice" id="warn" hidden></div>
@@ -261,48 +265,70 @@ if(!sb){
 let REL=[],installed=null,instSrc="",deviceVer=null;
 const fmt=d=>new Date(d).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"});
 const norm=v=>String(v||"").trim().replace(/^v/i,"");
-async function loadReleases(){
-  if(!sb)return;
-  const {data}=await sb.from("versions").select("*").order("date_sortie",{ascending:false}).order("id",{ascending:false});
-  REL=data||[];
-  const mk=(titre,r)=>{
-    const c=document.createElement("div");c.className="rel";
-    const h=document.createElement("h3");h.textContent=titre;c.append(h);
-    if(!r){const p=document.createElement("p");p.textContent="Bientôt disponible.";c.append(p);return c}
-    const v=document.createElement("p");v.className="v";v.textContent="Version "+norm(r.version)+" · "+fmt(r.date_sortie);c.append(v);
-    const ul=document.createElement("ul");
-    (r.nouveautes||"").split("\n").filter(x=>x.trim()).forEach(x=>{const li=document.createElement("li");li.textContent=x.trim();ul.append(li)});
-    c.append(ul);return c;
-  };
-  $("last").replaceChildren(mk("Micrologiciel du clavier",REL.find(r=>r.produit==="micrologiciel")),mk("Logiciel pour ordinateur",REL.find(r=>r.produit==="logiciel")));
+const fwFile=r=>"spaceorb-"+norm(r.version)+".uf2";
+const lignes=t=>String(t||"").split("\n").map(x=>x.replace(/^\s*(?:[-*•]|#+)\s*/,"").trim()).filter(Boolean);
+function puces(notes,max){
+  const ul=document.createElement("ul");
+  lignes(notes).slice(0,max||12).forEach(t=>{const li=document.createElement("li");li.textContent=t;ul.append(li)});
+  return ul;
 }
-loadReleases();
+function carte(titre,sous,notes){
+  const c=document.createElement("div");c.className="rel";
+  const h=document.createElement("h3");h.textContent=titre;
+  const v=document.createElement("p");v.className="v";v.textContent=sous;
+  c.append(h,v,puces(notes,10));return c;
+}
+async function loadReleases(){
+  if(sb){
+    const {data}=await sb.from("firmwares").select("*").order("date_sortie",{ascending:false}).order("id",{ascending:false});
+    REL=data||[];
+  }
+  const fw=REL[0];
+  const cFw=fw?carte("Micrologiciel du clavier","Version "+norm(fw.version)+" · "+fmt(fw.date_sortie),fw.nouveautes):carte("Micrologiciel du clavier","Bientôt disponible.","");
+  let cSw=carte("Logiciel pour ordinateur","Bientôt disponible.","");
+  if(CONFIG.SOFTWARE_REPO){
+    try{
+      const r=await fetch("https://api.github.com/repos/"+CONFIG.SOFTWARE_REPO+"/releases/latest");
+      if(r.ok){
+        const sw=await r.json();
+        cSw=carte("Logiciel pour ordinateur","Version "+norm(sw.tag_name)+" · "+fmt(sw.published_at),sw.body);
+        const row=document.createElement("div");row.className="row";row.style.marginTop="16px";
+        [["Windows",/\.(exe|msi)$/i],["macOS",/\.dmg$/i],["Linux",/\.(appimage|deb|rpm)$/i]].forEach(([n,re])=>{
+          (sw.assets||[]).filter(a=>re.test(a.name)).forEach(a=>{
+            const b=document.createElement("a");b.className="btn alt";b.href=a.browser_download_url;
+            b.textContent=n+" (."+a.name.split(".").pop().toLowerCase()+")";row.append(b);
+          });
+        });
+        const all=document.createElement("a");all.href="https://github.com/"+CONFIG.SOFTWARE_REPO+"/releases";
+        all.textContent="Toutes les versions du logiciel";all.style.cssText="display:block;margin-top:14px";
+        cSw.append(row,all);
+      }
+    }catch(_){}
+  }
+  $("last").replaceChildren(cFw,cSw);
+  const hist=$("hist");hist.replaceChildren();
+  if(!REL.length){hist.textContent="Les versions du micrologiciel s’afficheront ici.";hist.style.color="var(--mute)"}
+  REL.forEach((r,i)=>{
+    const d=document.createElement("details");if(i===0)d.open=true;
+    const sm=document.createElement("summary");sm.textContent="Version "+norm(r.version)+" · "+fmt(r.date_sortie);
+    d.append(sm,puces(r.nouveautes,30));hist.append(d);
+  });
+}
+const relReady=loadReleases();
 function showVersion(){
-  const last=REL.find(r=>r.produit==="micrologiciel"&&r.fichier);
+  const last=REL[0];
   const cur=deviceVer||installed;
   let t="Micrologiciel sur ton clavier : "+(cur?"v"+norm(cur)+" ("+(deviceVer?"lue sur le clavier":instSrc)+")":"version inconnue");
   if(last&&cur)t+=norm(cur)===norm(last.version)?". Tu es à jour.":". Dernière version : v"+norm(last.version)+".";
   $("vinfo").textContent=t;
 }
 async function initApp(user){
-  await loadReleases();
+  await relReady;
   const sel=$("fwsel");sel.replaceChildren();
-  REL.filter(r=>r.produit==="micrologiciel"&&r.fichier).forEach((r,i)=>{
+  REL.forEach((r,i)=>{
     const o=document.createElement("option");o.value=r.id;
     o.textContent="v"+norm(r.version)+" ("+fmt(r.date_sortie)+")"+(i===0?", dernière":"");sel.append(o);
   });
-  const dl=$("dl");dl.replaceChildren();
-  const lg=REL.find(r=>r.produit==="logiciel");
-  [["windows","Windows"],["mac","macOS"],["linux","Linux"]].forEach(([k,n])=>{
-    if(!lg||!lg["fichier_"+k])return;
-    const b=document.createElement("button");b.className="btn alt";b.textContent=n+" · v"+norm(lg.version);
-    b.onclick=async()=>{
-      const {data,error}=await sb.storage.from("logiciel").createSignedUrl(lg["fichier_"+k],60,{download:true});
-      if(error)return log("Téléchargement refusé.");location.href=data.signedUrl;
-    };
-    dl.append(b);
-  });
-  if(!dl.children.length)dl.textContent="Aucun installateur publié pour l’instant.";
   const {data}=await sb.from("installations").select("micrologiciel").eq("user_id",user.id).maybeSingle();
   if(data){installed=data.micrologiciel;instSrc="enregistrée lors de ta dernière mise à jour"}
   showVersion();
@@ -383,7 +409,7 @@ $("update").addEventListener("click",async()=>{
     let blob;
     if(sb){
       log("Téléchargement du firmware…");
-      const {data,error}=await sb.storage.from(CONFIG.FIRMWARE_BUCKET).download(row?row.fichier:CONFIG.FIRMWARE_FILE);
+      const {data,error}=await sb.storage.from(CONFIG.FIRMWARE_BUCKET).download(row?fwFile(row):CONFIG.FIRMWARE_FILE);
       if(error)throw new Error("Firmware introuvable ou accès refusé.");
       blob=data;
     }else{log("Mode test : aucun firmware distant. Sélectionne un fichier .uf2 en local.");
