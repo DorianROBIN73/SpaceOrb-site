@@ -213,11 +213,12 @@ const DEFAULTS={
   SUPABASE_KEY:"sb_publishable_9HXqQ3gE6X8A0eJ3C7_v7g_LKNH1BUO",
   EMAILJS_SERVICE:"service_v4n7c7p",EMAILJS_KEY:"xEXpMRYXzBB83xIB0",
   EMAILJS_TEMPLATE_COMMANDE:"template_wr8v5rn",EMAILJS_TEMPLATE_IDEE:"template_pjldx6s",
-  SOFTWARE_REPO:"https://github.com/DorianROBIN73/SpaceOrb-App",FIRMWARE_BUCKET:"firmware",FIRMWARE_FILE:"spaceorb-latest.uf2",
+  SOFTWARE_REPO:"DorianROBIN73/SpaceOrb-App",FIRMWARE_BUCKET:"firmware",FIRMWARE_FILE:"spaceorb-latest.uf2",
   USB_VENDOR_ID:null,BAUD:115200,CMD_BOOTSEL:"BOOTSEL",TOUCH_1200:true
 };
 /* config.js (facultatif) peut modifier ces valeurs ; s'il est absent, celles-ci servent. */
-const CFG=Object.assign({},DEFAULTS,typeof CONFIG!=="undefined"?CONFIG:{});
+const CFG={...DEFAULTS};
+if(typeof CONFIG!=="undefined")for(const k in CONFIG)if(CONFIG[k]!==""&&CONFIG[k]!==null)CFG[k]=CONFIG[k];
 if(typeof CONFIG==="undefined")console.warn("config.js introuvable : valeurs intégrées à index.html utilisées.");
 // Schéma du macropad
 (function(){
