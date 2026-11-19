@@ -198,9 +198,8 @@ details ul{color:var(--mute);margin:10px 0 0;padding-left:18px}
 <script>
 addEventListener("error",function(e){
   var t=e.target,m;
-  if(t&&t.tagName==="SCRIPT"&&/config\.js/.test(t.src||""))m="le fichier config.js est introuvable : ajoute-le à la racine du dépôt GitHub, à côté de index.html.";
-  else if(t&&t.tagName)return;
-  else m=(e.message||"erreur inconnue")+(e.filename?" ("+e.filename.split("/").pop()+")":"");
+  if(t&&t.tagName)return;
+  m=(e.message||"erreur inconnue")+(e.filename?" ("+e.filename.split("/").pop()+")":"");
   var b=document.getElementById("errbar");
   if(!b){b=document.createElement("div");b.id="errbar";b.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:99;background:#b3261e;color:#fff;padding:10px 16px;font:14px/1.4 sans-serif";document.body.appendChild(b)}
   b.textContent="Problème sur la page : "+m;
@@ -209,7 +208,17 @@ addEventListener("error",function(e){
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
 <script>
-if(typeof CONFIG==="undefined")throw new Error("config.js est introuvable ou contient une erreur");
+const DEFAULTS={
+  SUPABASE_URL:"https://ethjbizsqynlbfjgzgij.supabase.co",
+  SUPABASE_KEY:"sb_publishable_9HXqQ3gE6X8A0eJ3C7_v7g_LKNH1BUO",
+  EMAILJS_SERVICE:"service_v4n7c7p",EMAILJS_KEY:"xEXpMRYXzBB83xIB0",
+  EMAILJS_TEMPLATE_COMMANDE:"template_wr8v5rn",EMAILJS_TEMPLATE_IDEE:"template_pjldx6s",
+  SOFTWARE_REPO:"",FIRMWARE_BUCKET:"firmware",FIRMWARE_FILE:"spaceorb-latest.uf2",
+  USB_VENDOR_ID:null,BAUD:115200,CMD_BOOTSEL:"BOOTSEL",TOUCH_1200:true
+};
+/* config.js (facultatif) peut modifier ces valeurs ; s'il est absent, celles-ci servent. */
+const CFG=Object.assign({},DEFAULTS,typeof CONFIG!=="undefined"?CONFIG:{});
+if(typeof CONFIG==="undefined")console.warn("config.js introuvable : valeurs intégrées à index.html utilisées.");
 // Schéma du macropad
 (function(){
   const s=document.getElementById("pad");let h='<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef0f2"/><stop offset=".5" stop-color="#8d9399"/><stop offset="1" stop-color="#d3d6d9"/></linearGradient></defs>';
@@ -227,12 +236,12 @@ if(typeof CONFIG==="undefined")throw new Error("config.js est introuvable ou con
 
 // Formulaires : enregistrés dans Supabase, email de confirmation via EmailJS (facultatif)
 const TABLES={commande:"demandes",idee:"idees"};
-const tplMail=t=>t==="commande"?CONFIG.EMAILJS_TEMPLATE_COMMANDE:CONFIG.EMAILJS_TEMPLATE_IDEE;
-const mailOK=t=>!!(CONFIG.EMAILJS_SERVICE&&CONFIG.EMAILJS_KEY&&tplMail(t));
+const tplMail=t=>t==="commande"?CFG.EMAILJS_TEMPLATE_COMMANDE:CFG.EMAILJS_TEMPLATE_IDEE;
+const mailOK=t=>!!(CFG.EMAILJS_SERVICE&&CFG.EMAILJS_KEY&&tplMail(t));
 async function confirmer(t,d){
   if(!mailOK(t))return;
   try{await fetch("https://api.emailjs.com/api/v1.0/email/send",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({service_id:CONFIG.EMAILJS_SERVICE,template_id:tplMail(t),user_id:CONFIG.EMAILJS_KEY,
+    body:JSON.stringify({service_id:CFG.EMAILJS_SERVICE,template_id:tplMail(t),user_id:CFG.EMAILJS_KEY,
     template_params:{to_email:d.email,nom:d.nom,idee:d.idee||"",quantite:d.quantite||""}})})}catch(_){}
 }
 document.querySelectorAll("form[data-type]").forEach(f=>{
@@ -255,7 +264,7 @@ document.querySelectorAll("form[data-type]").forEach(f=>{
 
 // Comptes (Supabase)
 const $=id=>document.getElementById(id);
-const sb=(CONFIG.SUPABASE_URL&&window.supabase)?window.supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_KEY):null;
+const sb=(CFG.SUPABASE_URL&&window.supabase)?window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_KEY):null;
 const amsg=(t,ok)=>{$("a-msg").textContent=t;$("a-msg").className="msg "+(ok?"ok":"ko")};
 function showApp(on){$("app").style.display=on?"block":"none";$("auth").style.display=on?"none":"block"}
 async function checkOwner(user){
@@ -308,9 +317,9 @@ async function loadReleases(){
   const fw=REL[0];
   const cFw=fw?carte("Micrologiciel du clavier","Version "+norm(fw.version)+" · "+fmt(fw.date_sortie),fw.nouveautes):carte("Micrologiciel du clavier","Bientôt disponible.","");
   let cSw=carte("Logiciel pour ordinateur","Bientôt disponible.","");
-  if(CONFIG.SOFTWARE_REPO){
+  if(CFG.SOFTWARE_REPO){
     try{
-      const r=await fetch("https://api.github.com/repos/"+CONFIG.SOFTWARE_REPO+"/releases/latest");
+      const r=await fetch("https://api.github.com/repos/"+CFG.SOFTWARE_REPO+"/releases/latest");
       if(r.ok){
         const sw=await r.json();
         cSw=carte("Logiciel pour ordinateur","Version "+norm(sw.tag_name)+" · "+fmt(sw.published_at),sw.body);
@@ -321,7 +330,7 @@ async function loadReleases(){
             b.textContent=n+" (."+a.name.split(".").pop().toLowerCase()+")";row.append(b);
           });
         });
-        const all=document.createElement("a");all.href="https://github.com/"+CONFIG.SOFTWARE_REPO+"/releases";
+        const all=document.createElement("a");all.href="https://github.com/"+CFG.SOFTWARE_REPO+"/releases";
         all.textContent="Toutes les versions du logiciel";all.style.cssText="display:block;margin-top:14px";
         cSw.append(row,all);
       }
@@ -391,9 +400,9 @@ async function closePort(){
 }
 $("connect").addEventListener("click",async()=>{
   try{
-    const opts=CONFIG.USB_VENDOR_ID?{filters:[{usbVendorId:CONFIG.USB_VENDOR_ID}]}:{};
+    const opts=CFG.USB_VENDOR_ID?{filters:[{usbVendorId:CFG.USB_VENDOR_ID}]}:{};
     port=await navigator.serial.requestPort(opts);
-    await port.open({baudRate:CONFIG.BAUD});
+    await port.open({baudRate:CFG.BAUD});
     writer=port.writable.getWriter();
     setState(true,"SpaceOrb connecté");log("Connecté.");
     readLoop();await send("VERSION");
@@ -432,16 +441,16 @@ $("update").addEventListener("click",async()=>{
     let blob;
     if(sb){
       log("Téléchargement du firmware…");
-      const {data,error}=await sb.storage.from(CONFIG.FIRMWARE_BUCKET).download(row?fwFile(row):CONFIG.FIRMWARE_FILE);
+      const {data,error}=await sb.storage.from(CFG.FIRMWARE_BUCKET).download(row?fwFile(row):CFG.FIRMWARE_FILE);
       if(error)throw new Error("Firmware introuvable ou accès refusé.");
       blob=data;
     }else{log("Mode test : aucun firmware distant. Sélectionne un fichier .uf2 en local.");
       const [fh]=await window.showOpenFilePicker({types:[{accept:{"application/octet-stream":[".uf2"]}}]});blob=await fh.getFile()}
     log("Redémarrage du SpaceOrb en mode mise à jour…");
-    await send(CONFIG.CMD_BOOTSEL);
+    await send(CFG.CMD_BOOTSEL);
     await wait(500);
     await closePort();
-    if(CONFIG.TOUCH_1200){
+    if(CFG.TOUCH_1200){
       try{await port.open({baudRate:1200});await wait(200);await port.close()}catch(_){}
     }
     await wait(1500);
