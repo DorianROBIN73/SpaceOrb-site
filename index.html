@@ -215,19 +215,31 @@ details ul{color:var(--mute);margin:10px 0 0;padding-left:18px}
   s.innerHTML=h;
 })();
 
-// Formulaires (Google Sheets via Apps Script)
-const post=obj=>fetch(CONFIG.APPS_SCRIPT_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(obj)});
-const OKTXT={idee:"Ton idée a bien été reçue. Je vais l’étudier, et un email te prévient si je l’ajoute.",commande:"Ta demande a bien été prise en compte. Je l’étudie et je reviens vers toi au plus vite. Un email de confirmation vient de t’être envoyé."};
+// Formulaires : enregistrés dans Supabase, email de confirmation via EmailJS (facultatif)
+const TABLES={commande:"demandes",idee:"idees"};
+const tplMail=t=>t==="commande"?CONFIG.EMAILJS_TEMPLATE_COMMANDE:CONFIG.EMAILJS_TEMPLATE_IDEE;
+const mailOK=t=>!!(CONFIG.EMAILJS_SERVICE&&CONFIG.EMAILJS_KEY&&tplMail(t));
+async function confirmer(t,d){
+  if(!mailOK(t))return;
+  try{await fetch("https://api.emailjs.com/api/v1.0/email/send",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({service_id:CONFIG.EMAILJS_SERVICE,template_id:tplMail(t),user_id:CONFIG.EMAILJS_KEY,
+    template_params:{to_email:d.email,nom:d.nom,idee:d.idee||"",quantite:d.quantite||""}})})}catch(_){}
+}
 document.querySelectorAll("form[data-type]").forEach(f=>{
   f.addEventListener("submit",async e=>{
     e.preventDefault();
-    const msg=f.querySelector(".msg");msg.className="msg";
-    if(!CONFIG.APPS_SCRIPT_URL){msg.textContent="Ce formulaire n’est pas encore configuré.";msg.classList.add("ko");return}
+    const t=f.dataset.type,msg=f.querySelector(".msg"),d=Object.fromEntries(new FormData(f));
+    msg.className="msg";
+    const ok=()=>{f.reset();msg.classList.add("ok");msg.textContent=t==="idee"
+      ?"Ton idée a bien été reçue. Je vais l’étudier"+(mailOK(t)?", et tu reçois un email de confirmation.":".")
+      :"Ta demande a bien été prise en compte. Je l’étudie et je reviens vers toi au plus vite."+(mailOK(t)?" Un email de confirmation t’est envoyé.":"")};
+    if(d.site){ok();return}
+    if(!sb){msg.textContent="Ce formulaire n’est pas encore configuré.";msg.classList.add("ko");return}
     msg.textContent="Envoi en cours…";
-    try{
-      await post({type:f.dataset.type,...Object.fromEntries(new FormData(f))});
-      f.reset();msg.textContent=OKTXT[f.dataset.type];msg.classList.add("ok");
-    }catch(_){msg.textContent="L’envoi a échoué. Réessaie dans un instant.";msg.classList.add("ko")}
+    const row=t==="idee"?{nom:d.nom,email:d.email,idee:d.idee}:{nom:d.nom,email:d.email,quantite:Number(d.quantite)||1,pays:d.pays,message:d.message};
+    const {error}=await sb.from(TABLES[t]).insert(row);
+    if(error){msg.textContent="L’envoi a échoué. Réessaie dans un instant.";msg.classList.add("ko");return}
+    await confirmer(t,d);ok();
   });
 });
 
@@ -333,8 +345,9 @@ async function initApp(user){
   if(data){installed=data.micrologiciel;instSrc="enregistrée lors de ta dernière mise à jour"}
   showVersion();
   const m=user.user_metadata||{};
-  if(m.notifications&&!m.notif_sync&&CONFIG.APPS_SCRIPT_URL){
-    post({type:"abonnement",email:user.email});sb.auth.updateUser({data:{notif_sync:true}});
+  if(m.notifications&&!m.notif_sync){
+    const {error}=await sb.from("abonnes").insert({email:user.email});
+    if(!error||error.code==="23505")sb.auth.updateUser({data:{notif_sync:true}});
   }
 }
 
