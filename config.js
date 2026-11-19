@@ -10,5 +10,8 @@ const CONFIG = {
   CMD_HELLO: "HELLO",
   CMD_BOOTSEL: "BOOTSEL",
   TOUCH_1200: true            // redémarrage en mode mise à jour par « 1200 bauds »
-  PPS_SCRIPT_URL: "ton-lien-exec",
+  EMAILJS_SERVICE: "service_v4n7c7p",
+  EMAILJS_KEY: "xEXpMRYXzBB83xIB0",
+  EMAILJS_TEMPLATE_COMMANDE: "template_wr8v5rn",
+  EMAILJS_TEMPLATE_IDEE: "template_pjldx6s",
 };
