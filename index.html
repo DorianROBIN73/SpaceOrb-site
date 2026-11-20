@@ -66,6 +66,7 @@ textarea{min-height:110px;resize:vertical}
 .plate label{color:#333}
 .plate input{background:#f4f5f6;color:#111;border-color:#7b8187}
 .plate .msg.ko{color:#b3261e}.plate .msg.ok{color:#1b6e2c}
+.plate a{color:#8a2f00;font-weight:500}
 .plate .btn.alt{color:#111;border-color:#111}
 .plate p{color:#222}
 #app{display:none;margin-top:8px}
@@ -170,7 +171,7 @@ details ul{color:var(--mute);margin:10px 0 0;padding-left:18px}
 <section id="espace"><div class="wrap" style="max-width:720px">
 <div class="plate">
 <h2>Mon SpaceOrb</h2>
-<p>Réservé aux propriétaires. Connecte-toi pour mettre à jour le micrologiciel de ton macropad.</p>
+<p>Réservé aux propriétaires. Connecte-toi pour mettre à jour le micrologiciel de ton macropad. Après avoir créé ton compte, écris-moi à <a href="mailto:spaceorb.dorian@gmail.com?subject=Activation de mon compte SpaceOrb">spaceorb.dorian@gmail.com</a> pour que je valide ton adresse email.</p>
 <div id="auth">
 <form id="f-auth">
 <label>Email<input id="a-mail" type="email" required autocomplete="email"></label>
@@ -243,7 +244,7 @@ async function confirmer(t,d){
   if(!mailOK(t))return;
   try{await fetch("https://api.emailjs.com/api/v1.0/email/send",{method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({service_id:CFG.EMAILJS_SERVICE,template_id:tplMail(t),user_id:CFG.EMAILJS_KEY,
-    template_params:{to_email:d.email,nom:d.nom,idee:d.idee||"",quantite:d.quantite||""}})})}catch(_){}
+    template_params:{to_email:d.email,email:d.email,nom:d.nom,idee:d.idee||"",quantite:d.quantite||"",pays:d.pays||"",message:d.message||"aucun"}})})}catch(_){}
 }
 document.querySelectorAll("form[data-type]").forEach(f=>{
   f.addEventListener("submit",async e=>{
@@ -270,7 +271,12 @@ const amsg=(t,ok)=>{$("a-msg").textContent=t;$("a-msg").className="msg "+(ok?"ok
 function showApp(on){$("app").style.display=on?"block":"none";$("auth").style.display=on?"none":"block"}
 async function checkOwner(user){
   const {data,error}=await sb.from("owners").select("email").eq("email",user.email).maybeSingle();
-  if(error||!data){showApp(false);amsg("Compte créé, mais pas encore validé comme propriétaire. Écris-moi avec ton email pour être activé.",false);return}
+  if(error||!data){
+    showApp(false);
+    const m=$("a-msg");m.className="msg ko";
+    const a=document.createElement("a");a.href="mailto:spaceorb.dorian@gmail.com?subject=Activation de mon compte SpaceOrb";a.textContent="spaceorb.dorian@gmail.com";
+    m.replaceChildren("Compte créé, mais pas encore validé. Pour être activé, écris-moi à ",a," en indiquant l’adresse email de ton compte.");
+    return}
   showApp(true);initApp(user);
 }
 if(!sb){
